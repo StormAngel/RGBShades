@@ -28,6 +28,7 @@
 // Params for width and height
 const uint8_t kMatrixWidth = 16;
 const uint8_t kMatrixHeight = 5;
+#define INVISIBLE_LED 68          // first led outside of visible leds array
 
 // Pixel layout
 //
@@ -39,7 +40,7 @@ const uint8_t kMatrixHeight = 5;
 // 3 | 57 56 55 54 53 52 51  .  . 50 49 48 47 46 45 44
 // 4 |  . 58 59 60 61 62  .  .  .  . 63 64 65 66 67  .
 
-#define NUM_LEDS (kMatrixWidth * kMatrixHeight)
+#define NUM_LEDS (INVISIBLE_LED + 1)  // 0-based index, 1-based number...
 CRGB leds[ NUM_LEDS ];
 
 
@@ -47,25 +48,23 @@ CRGB leds[ NUM_LEDS ];
 // a given set of X and Y coordinates on your RGB Shades. 
 // This code, plus the supporting 80-byte table is much smaller 
 // and much faster than trying to calculate the pixel ID with code.
-#define LAST_VISIBLE_LED 67
 uint8_t XY( uint8_t x, uint8_t y)
 {
   // any out of bounds address maps to the first hidden pixel
   if( (x >= kMatrixWidth) || (y >= kMatrixHeight) ) {
-    return (LAST_VISIBLE_LED + 1);
+    return (INVISIBLE_LED);
   }
 
   const uint8_t ShadesTable[] = {
-     68,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 69,
+     68,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 68,
      29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14,
-     30, 31, 32, 33, 34, 35, 36, 70, 71, 37, 38, 39, 40, 41, 42, 43,
-     57, 56, 55, 54, 53, 52, 51, 72, 73, 50, 49, 48, 47, 46, 45, 44,
-     74, 58, 59, 60, 61, 62, 75, 76, 77, 78, 63, 64, 65, 66, 67, 79
+     30, 31, 32, 33, 34, 35, 36, 68, 68, 37, 38, 39, 40, 41, 42, 43,
+     57, 56, 55, 54, 53, 52, 51, 68, 68, 50, 49, 48, 47, 46, 45, 44,
+     68, 58, 59, 60, 61, 62, 68, 68, 68, 68, 63, 64, 65, 66, 67, 68
   };
 
   uint8_t i = (y * kMatrixWidth) + x;
-  uint8_t j = ShadesTable[i];
-  return j;
+  return ShadesTable[i];
 }
 
 
