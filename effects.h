@@ -7,7 +7,7 @@
 //    * Pixel data should be written using leds[XY(x,y)] to map coordinates to the RGB Shades layout
 
 // Triple Sine Waves
-byte sineOffset = 0; // counter for current position of sine waves
+uint8_t sineOffset = 0; // counter for current position of sine waves
 void threeSine() {
   
   // startup tasks
@@ -17,14 +17,14 @@ void threeSine() {
   }
 
   // Draw one frame of the animation into the LED array
-  for (byte x = 0; x < kMatrixWidth; x++) {
-    for (int y = 0; y < kMatrixHeight; y++) {
+  for (uint8_t x = 0; x < kMatrixWidth; x++) {
+    for (uint8_t y = 0; y < kMatrixHeight; y++) {
 
       // Calculate "sine" waves with varying periods
       // sin8 is used for speed; cos8, quadwave8, or triwave8 would also work here
-      byte sinDistanceR = qmul8(abs(y*(255/kMatrixHeight) - sin8(sineOffset*9+x*16)),2);
-      byte sinDistanceG = qmul8(abs(y*(255/kMatrixHeight) - sin8(sineOffset*10+x*16)),2);
-      byte sinDistanceB = qmul8(abs(y*(255/kMatrixHeight) - sin8(sineOffset*11+x*16)),2);
+      uint8_t sinDistanceR = qmul8(abs(y*(255/kMatrixHeight) - sin8(sineOffset*9+x*16)),2);
+      uint8_t sinDistanceG = qmul8(abs(y*(255/kMatrixHeight) - sin8(sineOffset*10+x*16)),2);
+      uint8_t sinDistanceB = qmul8(abs(y*(255/kMatrixHeight) - sin8(sineOffset*11+x*16)),2);
 
       leds[XY(x,y)] = CRGB(255-sinDistanceR, 255-sinDistanceG, 255-sinDistanceB); 
     }
@@ -39,8 +39,8 @@ void threeSine() {
 
 
 // RGB Plasma
-byte offset  = 0; // counter for radial color wave motion
-int plasVector = 0; // counter for orbiting plasma center
+uint8_t offset  = 0; // counter for radial color wave motion
+uint16_t plasVector = 0; // counter for orbiting plasma center
 void plasma() {
 
   // startup tasks
@@ -50,13 +50,13 @@ void plasma() {
   }
 
   // Calculate current center of plasma pattern (can be offscreen)
-  int xOffset = cos8(plasVector/256);
-  int yOffset = sin8(plasVector/256);
+  uint8_t xOffset = cos8(plasVector/256);
+  uint8_t yOffset = sin8(plasVector/256);
 
   // Draw one frame of the animation into the LED array
-  for (int x = 0; x < kMatrixWidth; x++) {
-    for (int y = 0; y < kMatrixHeight; y++) {
-      byte color = sin8(sqrt(sq(((float)x-7.5)*10+xOffset-127)+sq(((float)y-2)*10+yOffset-127))+offset);
+  for (uint8_t x = 0; x < kMatrixWidth; x++) {
+    for (uint8_t y = 0; y < kMatrixHeight; y++) {
+      uint8_t color = sin8(sqrt(sq(((float)x-7.5)*10+xOffset-127)+sq(((float)y-2)*10+yOffset-127))+offset);
       leds[XY(x,y)] = CHSV(color, 255, 255);
     }    
   }
@@ -68,7 +68,7 @@ void plasma() {
 
 
 // Scanning pattern left/right, uses global hue cycle
-byte riderPos = 0;
+uint8_t riderPos = 0;
 void rider() {
   
   // startup tasks
@@ -79,12 +79,12 @@ void rider() {
   }
 
   // Draw one frame of the animation into the LED array
-  for (byte x = 0; x < kMatrixWidth; x++) {
-    int brightness = abs(x*(256/kMatrixWidth) - triwave8(riderPos)*2 + 127)*3;
+  for (uint8_t x = 0; x < kMatrixWidth; x++) {
+    uint16_t brightness = abs(x*(256/kMatrixWidth) - triwave8(riderPos)*2 + 127)*3;
     if (brightness > 255) brightness = 255;
     brightness = 255 - brightness;
     CRGB riderColor = CHSV(cycleHue, 255, brightness);
-    for (byte y = 0; y < kMatrixHeight; y++) {
+    for (uint8_t y = 0; y < kMatrixHeight; y++) {
       leds[XY(x,y)] = riderColor;
     }
   }
@@ -105,19 +105,18 @@ void glitter() {
   }
 
   // Draw one frame of the animation into the LED array
-  for (int x = 0; x < kMatrixWidth; x++) {
-    for (int y = 0; y <kMatrixHeight; y++) {
+  for (uint8_t x = 0; x < kMatrixWidth; x++) {
+    for (uint8_t y = 0; y <kMatrixHeight; y++) {
       leds[XY(x,y)] = CHSV(cycleHue,255,random8(5)*63);
     }
   }
-
 }
 
 
 // Fills saturated colors into the array from alternating directions
-byte currentColor = 0;
-byte currentRow = 0;
-byte currentDirection = 0;
+uint8_t currentColor = 0;
+uint8_t currentRow = 0;
+uint8_t currentDirection = 0;
 void colorFill() {
   
   // startup tasks
@@ -133,8 +132,8 @@ void colorFill() {
   // test a bitmask to fill up or down when currentDirection is 0 or 2 (0b00 or 0b10)
   if (!(currentDirection & 1)) {
     effectDelay = 45; // slower since vertical has fewer pixels
-    for (byte x = 0; x < kMatrixWidth; x++) {
-      byte y = currentRow;
+    for (uint8_t x = 0; x < kMatrixWidth; x++) {
+      uint8_t y = currentRow;
       if (currentDirection == 2) y = kMatrixHeight - 1 - currentRow;
       leds[XY(x,y)] = currentPalette[currentColor];
     }
@@ -143,8 +142,8 @@ void colorFill() {
   // test a bitmask to fill left or right when currentDirection is 1 or 3 (0b01 or 0b11)
   if (currentDirection & 1) {
     effectDelay = 20; // faster since horizontal has more pixels
-    for (byte y = 0; y < kMatrixHeight; y++) {
-      byte x = currentRow;
+    for (uint8_t y = 0; y < kMatrixHeight; y++) {
+      uint8_t x = currentRow;
       if (currentDirection == 3) x = kMatrixWidth - 1 - currentRow;
       leds[XY(x,y)] = currentPalette[currentColor];
     }
@@ -174,8 +173,8 @@ void threeDee() {
     effectDelay = 50;
   }
   
-   for (byte x = 0; x < kMatrixWidth; x++) {
-     for (byte y = 0; y < kMatrixHeight; y++) {
+   for (uint8_t x = 0; x < kMatrixWidth; x++) {
+     for (uint8_t y = 0; y < kMatrixHeight; y++) {
        if (x < 7) {
          leds[XY(x,y)] = CRGB::Blue;
        } else if (x > 8) {
@@ -202,8 +201,10 @@ void sideRain() {
   }
   
   scrollArray(rainDir);
-  byte randPixel = random8(kMatrixHeight);
-  for (byte y = 0; y < kMatrixHeight; y++) leds[XY((kMatrixWidth-1) * rainDir,y)] = CRGB::Black;
+  uint8_t randPixel = random8(kMatrixHeight);
+  for (uint8_t y = 0; y < kMatrixHeight; y++) {
+    leds[XY((kMatrixWidth-1) * rainDir,y)] = CRGB::Black;
+  }
   leds[XY((kMatrixWidth-1)*rainDir, randPixel)] = CHSV(cycleHue, 255, 255); 
 
 }
@@ -220,16 +221,15 @@ void confetti() {
   }
 
   // scatter random colored pixels at several random coordinates
-  for (byte i = 0; i < 4; i++) {
-    leds[XY(random16(kMatrixWidth),random16(kMatrixHeight))] = ColorFromPalette(currentPalette, random16(255), 255);//CHSV(random16(255), 255, 255);
-    random16_add_entropy(1);
+  for (uint8_t i = 0; i < 4; i++) {
+    leds[XY(random8(kMatrixWidth),random8(kMatrixHeight))] = ColorFromPalette(currentPalette, random8(), 255);//CHSV(random16(255), 255, 255);
   }
-   
+  random16_add_entropy(analogRead(A3));  // unconnected analog port
 }
 
 
 // Draw slanting bars scrolling across the array, uses current hue
-byte slantPos = 0;
+uint8_t slantPos = 0;
 void slantBars() {
 
   // startup tasks
@@ -238,8 +238,8 @@ void slantBars() {
     effectDelay = 5;
   }
 
-  for (byte x = 0; x < kMatrixWidth; x++) {
-    for (byte y = 0; y < kMatrixHeight; y++) {
+  for (uint8_t x = 0; x < kMatrixWidth; x++) {
+    for (uint8_t y = 0; y < kMatrixHeight; y++) {
       leds[XY(x,y)] = CHSV(cycleHue, 255, quadwave8(x*32+y*32+slantPos));
     }
   }

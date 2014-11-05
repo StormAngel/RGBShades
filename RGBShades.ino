@@ -36,7 +36,19 @@ byte currentBrightness = STARTBRIGHTNESS; // 0-255 will be scaled to 0-MAXBRIGHT
 #include "XYmap.h"
 #include "utils.h"
 #include "effects.h"
-#include "buttons.h"
+
+// Button handling using OneButton library
+// http://www.mathertel.de/Arduino/OneButtonLibrary.aspx
+#include <OneButton.h>
+
+// buttons are connected to these pins
+#define MODEBUTTON_PIN 4
+#define BRIGHTBUTTON_PIN 3
+
+// setup buttons
+OneButton modeButton(MODEBUTTON_PIN,true);
+OneButton brightButton(BRIGHTBUTTON_PIN,true);
+
 
 // Runs one time at the start of the program (power up or reset)
 void setup() {
@@ -47,10 +59,19 @@ void setup() {
   // set global brightness value
   FastLED.setBrightness( scale8(STARTBRIGHTNESS, MAXBRIGHTNESS) );
 
-  // configure input buttons
-  pinMode(MODEBUTTON, INPUT_PULLUP);
-  pinMode(BRIGHTNESSBUTTON, INPUT_PULLUP);
+  // set click / hold lengths
+  modeButton.setClickTicks(200);
+  brightButton.setClickTicks(200);
 
+  // attach functions for click, hold and doubleclick for mode button
+  modeButton.attachClick(modeButton_Click);
+  modeButton.attachLongPressStart(modeButton_Hold);
+  modeButton.attachDoubleClick(modeButton_DoubleClick);
+  // attach functions for click, hold and doubleclick for brightness button
+  brightButton.attachClick(brightButton_Click);
+  brightButton.attachLongPressStart(brightButton_Hold);
+  brightButton.attachDoubleClick(brightButton_DoubleClick);
+  
 }
 
 // list of functions that will be displayed
@@ -72,43 +93,14 @@ functionList effectList[] = {threeSine,
 void loop()
 {
   currentMillis = millis(); // save the current timer value
-  updateButtons(); // read, debounce, and process the buttons
   
-  // Check the mode button (for switching between effects)
-  switch(buttonStatus(0)) {
+  modeButton.tick();
+  brightButton.tick();
     
-    case BTNRELEASED: // button was pressed and released quickly
-      cycleMillis = currentMillis; 
-      if (++currentEffect >= numEffects) currentEffect = 0; // loop to start of effect list
-      effectInit = false; // trigger effect initialization when new effect is selected
-    break;
-    
-    case BTNLONGPRESS: // button was held down for a while
-      autoCycle = !autoCycle; // toggle auto cycle mode
-      confirmBlink(); // one blue blink: auto mode. two red blinks: manual mode.
-    break;
-  
-  }
-  
-  // Check the brightness adjust button  
-  switch(buttonStatus(1)) {
-    
-    case BTNRELEASED: // button was pressed and released quickly
-      currentBrightness += 16; // increase the brightness (wraps to lowest)
-      FastLED.setBrightness(scale8(currentBrightness,MAXBRIGHTNESS));
-    break;
-    
-    case BTNLONGPRESS: // button was held down for a while
-      currentBrightness = STARTBRIGHTNESS; // reset brightness to startup value
-      FastLED.setBrightness(scale8(currentBrightness,MAXBRIGHTNESS));
-    break;
-  
-  }
-  
   // switch to a new effect every cycleTime milliseconds
   if (currentMillis - cycleMillis > cycleTime && autoCycle == true) {
-    cycleMillis = currentMillis; 
-    if (++currentEffect >= numEffects) currentEffect = 0; // loop to start of effect list
+    cycleMillis = currentMillis;
+    currentEffect = random8(numEffects-1);  // random effect
     effectInit = false; // trigger effect initialization when new effect is selected
   }
   
@@ -122,7 +114,7 @@ void loop()
   if (currentMillis - effectMillis > effectDelay) {
     effectMillis = currentMillis;
     effectList[currentEffect](); // run the selected effect function
-    random16_add_entropy(1); // make the random values a bit more random-ish
+    random16_add_entropy(analogRead(A4)); // make the random values a bit more random-ish
   }
   
   // run a fade effect too if the confetti effect is running
@@ -133,6 +125,34 @@ void loop()
 }
 
 
+void modeButton_Click() {
+  cycleMillis = currentMillis; 
+  if (++currentEffect >= numEffects) currentEffect = 0; // loop to start of effect list
+  effectInit = false; // trigger effect initialization when new effect is selected
+}
 
+void modeButton_DoubleClick() {
+  cycleMillis = currentMillis;
+  if (--currentEffect >= numEffects) currentEffect = numEffects-1; // loop to end of effect list
+  effectInit = false; // trigger effect initialization when new effect is selected
+}
 
+void modeButton_Hold() {
+  autoCycle = !autoCycle; // toggle auto cycle mode
+  confirmBlink(); // one blue blink: auto mode. two red blinks: manual mode.
+}
 
+void brightButton_Click() {
+  currentBrightness += 16; // increase the brightness (wraps to lowest)
+  FastLED.setBrightness(scale8(currentBrightness,MAXBRIGHTNESS));
+}
+
+void brightButton_DoubleClick() {
+  currentBrightness -= 16; // increase the brightness (wraps to lowest)
+  FastLED.setBrightness(scale8(currentBrightness,MAXBRIGHTNESS));
+}
+
+void brightButton_Hold() {
+  currentBrightness = STARTBRIGHTNESS; // reset brightness to startup value
+  FastLED.setBrightness(scale8(currentBrightness,MAXBRIGHTNESS));
+}

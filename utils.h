@@ -1,14 +1,14 @@
 // Assorted useful functions and variables
 
-boolean effectInit = false; // indicates if a pattern has been recently switched
+uint8_t effectInit = false; // indicates if a pattern has been recently switched
 uint16_t effectDelay = 0; // time between automatic effect changes
-unsigned long effectMillis = 0; // store the time of last effect function run
-unsigned long cycleMillis = 0; // store the time of last effect change
-unsigned long currentMillis; // store current loop's millis value
-unsigned long hueMillis; // store time of last hue change
+uint32_t effectMillis = 0; // store the time of last effect function run
+uint32_t cycleMillis = 0; // store the time of last effect change
+uint32_t currentMillis; // store current loop's millis value
+uint32_t hueMillis; // store time of last hue change
 
-byte currentEffect = 0; // index to the currently running effect
-boolean autoCycle = true; // flag for automatic effect changes
+uint8_t currentEffect = 0; // index to the currently running effect
+uint8_t autoCycle = true; // flag for automatic effect changes
 
 CRGBPalette16 currentPalette(RainbowColors_p); // global pallete storage
 
@@ -18,39 +18,39 @@ typedef void (*functionList)(); // definition for list of effect function pointe
 
 
 // Increment the global hue value for functions that use it
-byte cycleHue = 0;
-byte cycleHueCount = 0;
-void hueCycle(byte incr) {
+uint8_t cycleHue = 0;
+uint8_t cycleHueCount = 0;
+void hueCycle(uint8_t incr) {
     cycleHueCount = 0;
     cycleHue+=incr;
 }
 
 // Set every LED in the array to a specified color
 void fillAll(CRGB fillColor) {
-  for (byte i = 0; i < NUM_LEDS; i++) {
+  for (uint8_t i = 0; i < NUM_LEDS; i++) {
     leds[i] = fillColor;
   }
 }
 
 // Fade every LED in the array by a specified amount
-void fadeAll(byte fadeIncr) {
-  for (byte i = 0; i < NUM_LEDS; i++) {
+void fadeAll(uint8_t fadeIncr) {
+  for (uint8_t i = 0; i < NUM_LEDS; i++) {
     leds[i] = leds[i].fadeToBlackBy(fadeIncr);
   }
 }
 
 // Shift all pixels by one, right or left (0 or 1)
-void scrollArray(byte scrollDir) {
+void scrollArray(uint8_t scrollDir) {
   
-    byte scrollX = 0;
-    for (byte x = 1; x < kMatrixWidth; x++) {
+    uint8_t scrollX = 0;
+    for (uint8_t x = 1; x < kMatrixWidth; x++) {
       if (scrollDir == 0) {
         scrollX = kMatrixWidth - x;
       } else if (scrollDir == 1) {
         scrollX = x - 1;
       }
       
-      for (byte y = 0; y < kMatrixHeight; y++) {
+      for (uint8_t y = 0; y < kMatrixHeight; y++) {
         leds[XY(scrollX,y)] = leds[XY(scrollX + scrollDir*2 - 1,y)];
       }
     }
