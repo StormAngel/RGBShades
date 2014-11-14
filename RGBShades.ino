@@ -54,7 +54,7 @@ OneButton brightButton(BRIGHTBUTTON_PIN,true);
 void setup() {
 
   // write FastLED configuration data
-  FastLED.addLeds<CHIPSET, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS - 1);//.setCorrection(TypicalSMD5050);
+  FastLED.addLeds<CHIPSET, LED_PIN, COLOR_ORDER>(leds, LAST_VISIBLE_LED + 1);//.setCorrection(TypicalSMD5050);
   
   // set global brightness value
   FastLED.setBrightness( scale8(STARTBRIGHTNESS, MAXBRIGHTNESS) );
