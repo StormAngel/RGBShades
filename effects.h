@@ -248,3 +248,26 @@ void slantBars() {
 
 }
 
+
+// sine ripple effect
+
+uint8_t  sineRipple_dist[NUM_LEDS];
+
+void sineRipple() {
+  
+  if(effectInit == false) {
+    effectInit = true;
+    effectDelay = 5;
+    
+    uint8_t mlt256 = 256 / (kMatrixHeight + kMatrixWidth); // maximum possible distance to origin point
+    for(uint8_t y=0; y<kMatrixHeight; y++) {
+      for(uint8_t x=0; x<kMatrixWidth; x++) {
+        // calculate distance to origin point sqrt((x+_xoffset)*(x+_xoffset) + (y+_yoffset)*(y+_yoffset)) * mlt256
+        sineRipple_dist[XY(x,y)] = sqrt((x-7)*(x-7) + (y+1)*(y+1)) * mlt256;
+      }
+    }
+  }
+  
+  
+  
+}
