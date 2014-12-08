@@ -259,7 +259,7 @@ void sineRipple() {
     effectInit = true;
     effectDelay = 5;
     
-    currentPalette = HeatColors_p;
+    currentPalette = CRGBPalette16( CRGB::Black, CRGB::Red, CRGB::Black);
     uint8_t mlt256 = 256 / (kMatrixHeight + kMatrixWidth); // maximum possible distance to origin point
     for(uint8_t y=0; y<kMatrixHeight; y++) {
       for(uint8_t x=0; x<kMatrixWidth; x++) {
@@ -271,7 +271,7 @@ void sineRipple() {
   
   for(uint8_t x=0;x<kMatrixWidth;x++) {
     for(uint8_t y=0;y<kMatrixHeight;y++) {
-      leds[XY(x,y)] = ColorFromPalette(currentPalette, quadwave8((((sineRipple_dist[XY(x,y)] * 6) - offset)%256)));
+      leds[XY(x,y)] = ColorFromPalette(currentPalette, quadwave8((((sineRipple_dist[XY(x,y)] * 3) - offset)%256)));
     }
   }
   offset++;

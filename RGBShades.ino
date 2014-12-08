@@ -76,7 +76,7 @@ void setup() {
 
 // list of functions that will be displayed
 functionList effectList[] = {threeSine,
-                             threeDee,
+                             /*threeDee,*/
                              plasma,
                              confetti,
                              rider,
