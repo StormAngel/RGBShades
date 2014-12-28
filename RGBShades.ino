@@ -35,6 +35,7 @@ byte currentBrightness = STARTBRIGHTNESS; // 0-255 will be scaled to 0-MAXBRIGHT
 #include <FastLED.h>
 #include "XYmap.h"
 #include "utils.h"
+#include "numbers.h"
 #include "effects.h"
 
 // Button handling using OneButton library
@@ -75,16 +76,19 @@ void setup() {
 }
 
 // list of functions that will be displayed
-functionList effectList[] = {threeSine,
+functionList effectList[] = {
+                             sineRipple,
+                             happyNewYear,
+                             threeSine,
                              /*threeDee,*/
-                             plasma,
+                             /*plasma,*/
                              confetti,
                              rider,
                              glitter,
                              slantBars,
                              colorFill,
-                             sideRain,
-                             sineRipple };
+                             sideRain
+};
 
 // Timing parameters
 #define cycleTime 15000

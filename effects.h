@@ -257,7 +257,7 @@ void sineRipple() {
   
   if(effectInit == false) {
     effectInit = true;
-    effectDelay = 5;
+    effectDelay = 12;
     
     currentPalette = CRGBPalette16( CRGB::Black, CRGB::Red, CRGB::Black);
     uint8_t mlt256 = 256 / (kMatrixHeight + kMatrixWidth); // maximum possible distance to origin point
@@ -276,3 +276,25 @@ void sineRipple() {
   }
   offset++;
 }
+
+
+// happy new year 2015
+void happyNewYear() {
+  if(effectInit == false) {
+    effectInit = true;
+    effectDelay = 5;
+    selectRandomPalette();
+  }
+  fadeAll(10);
+  blur2d( leds, kMatrixWidth, kMatrixHeight, 8);
+  uint8_t iPosShift = 0;
+  //if(sineOffset > 63 && sineOffset < 128) iPosShift = 1;
+  //if(sineOffset > 191) iPosShift = 1;
+  drawNumber(1+iPosShift,2,CHSV(cycleHue+50, 255, beatsin8(25,130,255)));
+  drawNumber(4+iPosShift,0,CHSV(cycleHue, 255, beatsin8(21,130,255)));
+  drawNumber(9+iPosShift,1,CHSV(cycleHue+50, 255, beatsin8(39,190,255)));
+  drawNumber(12+iPosShift,5,CHSV(cycleHue, 255, beatsin8(17,130,255)));
+  
+  sineOffset++;  // could have used any other uint8_t variable, but since we already have this...
+}
+
