@@ -35,8 +35,10 @@ byte currentBrightness = STARTBRIGHTNESS; // 0-255 will be scaled to 0-MAXBRIGHT
 #include <FastLED.h>
 #include "XYmap.h"
 #include "utils.h"
+#include "letters.h"
 #include "numbers.h"
 #include "effects.h"
+#include "effectList.h"
 
 // Button handling using OneButton library
 // http://www.mathertel.de/Arduino/OneButtonLibrary.aspx
@@ -75,20 +77,6 @@ void setup() {
   
 }
 
-// list of functions that will be displayed
-functionList effectList[] = {
-                             sineRipple,
-                             happyNewYear,
-                             threeSine,
-                             /*threeDee,*/
-                             /*plasma,*/
-                             confetti,
-                             rider,
-                             glitter,
-                             slantBars,
-                             colorFill,
-                             sideRain
-};
 
 // Timing parameters
 #define cycleTime 15000
@@ -152,12 +140,27 @@ void brightButton_Click() {
   FastLED.setBrightness(scale8(currentBrightness,MAXBRIGHTNESS));
 }
 
-void brightButton_DoubleClick() {
-  currentBrightness -= 16; // increase the brightness (wraps to lowest)
-  FastLED.setBrightness(scale8(currentBrightness,MAXBRIGHTNESS));
+void brightButton_DoubleClick() {  // You could replace the Delay values with variables, allowing each effect to set its own speeds.
+  if (scrollEffect == true) {
+    if (effectDelay == 200) {  // toggle the speed
+      effectDelay = 110;
+    }
+    else if (effectDelay == 80) {
+      effectDelay = 200;
+    }
+    else effectDelay = 80;
+  }
+  else {currentBrightness -= 16; // increase the brightness (wraps to lowest)
+    FastLED.setBrightness(scale8(currentBrightness,MAXBRIGHTNESS));
+  }
 }
 
 void brightButton_Hold() {
-  currentBrightness = STARTBRIGHTNESS; // reset brightness to startup value
-  FastLED.setBrightness(scale8(currentBrightness,MAXBRIGHTNESS));
+  if (scrollEffect == true) {
+   if (++scrollDir > 2) scrollDir = 0;  // toggle the text scroll direction
+  }
+  else {
+    currentBrightness = STARTBRIGHTNESS; // reset brightness to startup value
+    FastLED.setBrightness(scale8(currentBrightness,MAXBRIGHTNESS));
+  }
 }

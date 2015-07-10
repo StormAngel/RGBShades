@@ -6,13 +6,13 @@
 //    * All animation should be controlled with counters and effectDelay, no delay() or loops
 //    * Pixel data should be written using leds[XY(x,y)] to map coordinates to the RGB Shades layout
 
+
 // Triple Sine Waves
 uint8_t sineOffset = 0; // counter for current position of sine waves
-void threeSine() {
-  
-  // startup tasks
+void threeSine() {  // startup tasks
   if (effectInit == false) {
     effectInit = true;
+    scrollEffect = false;
     effectDelay = 20;
   }
 
@@ -35,17 +35,13 @@ void threeSine() {
 }
 
 
-
-
-
 // RGB Plasma
 uint8_t offset  = 0; // counter for radial color wave motion
 uint16_t plasVector = 0; // counter for orbiting plasma center
-void plasma() {
-
-  // startup tasks
+void plasma() {  // startup tasks
   if (effectInit == false) {
     effectInit = true;
+    scrollEffect = false;
     effectDelay = 10;
   }
 
@@ -69,11 +65,10 @@ void plasma() {
 
 // Scanning pattern left/right, uses global hue cycle
 uint8_t riderPos = 0;
-void rider() {
-  
-  // startup tasks
+void rider() {  // startup tasks
   if (effectInit == false) {
     effectInit = true;
+    scrollEffect = false;
     effectDelay = 5;
     riderPos = 0;
   }
@@ -94,13 +89,11 @@ void rider() {
 }
 
 
-
 // Shimmering noise, uses global hue cycle
-void glitter() {
-
-  // startup tasks
+void glitter() {  // startup tasks
   if (effectInit == false) {
     effectInit = true;
+    scrollEffect = false;
     effectDelay = 15;
   }
 
@@ -117,11 +110,10 @@ void glitter() {
 uint8_t currentColor = 0;
 uint8_t currentRow = 0;
 uint8_t currentDirection = 0;
-void colorFill() {
-  
-  // startup tasks
+void colorFill() {  // startup tasks
   if (effectInit == false) {
     effectInit = true;
+    scrollEffect = false;
     effectDelay = 45;
     currentColor = 0;
     currentRow = 0;
@@ -164,12 +156,12 @@ void colorFill() {
 
 }
 
-// Emulate 3D anaglyph glasses
-void threeDee() {
 
-  // startup tasks
+// Emulate 3D anaglyph glasses
+void threeDee() {  // startup tasks
   if (effectInit == false) {
     effectInit = true;
+    scrollEffect = false;
     effectDelay = 50;
   }
   
@@ -190,13 +182,13 @@ void threeDee() {
 
 }
 
+
 // Random pixels scroll sideways, uses current hue
 #define rainDir 0
-void sideRain() {
-
-  // startup tasks
+void sideRain() {  // startup tasks
   if (effectInit == false) {
     effectInit = true;
+    scrollEffect = false;
     effectDelay = 30;
   }
   
@@ -209,13 +201,13 @@ void sideRain() {
 
 }
 
+
 // Pixels with random locations and random colors selected from a palette
 // Use with the fadeAll function to allow old pixels to decay
-void confetti() {
-
-  // startup tasks
+void confetti() {  // startup tasks
   if (effectInit == false) {
     effectInit = true;
+    scrollEffect = false;
     effectDelay = 10;
     selectRandomPalette();
   }
@@ -230,11 +222,10 @@ void confetti() {
 
 // Draw slanting bars scrolling across the array, uses current hue
 uint8_t slantPos = 0;
-void slantBars() {
-
-  // startup tasks
+void slantBars() {  // startup tasks
   if (effectInit == false) {
     effectInit = true;
+    scrollEffect = false;
     effectDelay = 5;
   }
 
@@ -250,13 +241,12 @@ void slantBars() {
 
 
 // sine ripple effect
-
 uint8_t  sineRipple_dist[NUM_LEDS];
-
-void sineRipple() {
+void sineRipple() {  // startup tasks
   
   if(effectInit == false) {
     effectInit = true;
+    scrollEffect = false;
     effectDelay = 12;
     
     currentPalette = CRGBPalette16( CRGB::Black, CRGB::Red, CRGB::Black);
@@ -278,23 +268,173 @@ void sineRipple() {
 }
 
 
-// happy new year 2015
-void happyNewYear() {
-  if(effectInit == false) {
+// Draws parallel lines from alternating directions
+uint8_t lineDir;
+uint8_t linePos;
+void gridLines() {
+  if (effectInit == false) {  //startup tasks
     effectInit = true;
-    effectDelay = 5;
-    selectRandomPalette();
+    scrollEffect = false;
+    currentColor = 0;
+    lineDir = 0;
+    linePos = 0;
+    FastLED.clear();
   }
-  fadeAll(10);
-  blur2d( leds, kMatrixWidth, kMatrixHeight, 8);
-  uint8_t iPosShift = 0;
-  //if(sineOffset > 63 && sineOffset < 128) iPosShift = 1;
-  //if(sineOffset > 191) iPosShift = 1;
-  drawNumber(1+iPosShift,2,CHSV(cycleHue+50, 255, beatsin8(25,130,255)));
-  drawNumber(4+iPosShift,0,CHSV(cycleHue, 255, beatsin8(21,130,255)));
-  drawNumber(9+iPosShift,1,CHSV(cycleHue+50, 255, beatsin8(39,190,255)));
-  drawNumber(12+iPosShift,5,CHSV(cycleHue, 255, beatsin8(17,130,255)));
+
+  if (lineDir == 0) {
+    for (uint8_t y=0;y<5;y+=2) {
+      leds[XY(linePos,y)] = CRGB::Green;
+    }
+    effectDelay = 60;
+    if (linePos >= 15) {
+      linePos = 0;
+      lineDir++;
+      effectDelay = 300;
+    }
+    else linePos++;
+  }
   
-  sineOffset++;  // could have used any other uint8_t variable, but since we already have this...
+  else if (lineDir == 1) {
+    for (uint8_t x=0;x<16;x+=2) {
+      leds[XY(x,linePos)] = CRGB::Red;
+    }
+    effectDelay = 120;
+    if (linePos >= 4) {
+      linePos = 0;
+      lineDir++;
+      effectDelay = 300;
+    }
+    else linePos++;
+  }
+  
+  else if (lineDir == 2) {
+    for (uint8_t y=1;y<5;y+=2) {
+      leds[XY((15-linePos),y)] = CRGB::Yellow;
+    }
+    effectDelay = 60;
+    if (linePos >= 15) {
+      linePos = 0;
+      lineDir++;
+      effectDelay = 300;
+    }
+    else linePos++;
+  }
+  
+  else if (lineDir == 3) {
+    for (uint8_t x=1;x<16;x+=2) {
+      leds[XY(x,(4-linePos))] = CRGB::Blue;
+    }
+    effectDelay = 120;
+    if (linePos >= 4) {
+      linePos = 0;
+      lineDir = 0;
+      effectDelay = 300;
+    }
+    else linePos++;
+  }
 }
+
+
+// StormAngel's text scroller effect
+uint8_t hPos;
+uint8_t vPos;
+boolean vScroll;
+void stormScroll() {  // startup tasks
+  if (effectInit == false) {
+    effectInit = true;
+    scrollEffect = true;
+    effectDelay = 160;
+    scrollDir = 0;
+    horiPos = 7;
+    vertiPos = 5;
+    hPos = 35;
+    vPos = 5;
+    sWidth = 60;
+    vScroll = false;
+  }
+  
+  FastLED.clear();
+  drawChar(28,CHSV(cycleHue, 255, 255), (horiPos)%sWidth, vertiPos);
+   // S
+  drawChar(29,CHSV(cycleHue, 255, 255),(horiPos+5)%sWidth,vertiPos);
+   // T
+  drawChar(24,CHSV(cycleHue, 255, 255),(horiPos+11)%sWidth,vertiPos);
+   // O
+  drawChar(27,CHSV(cycleHue, 255, 255),(horiPos+16)%sWidth,vertiPos);
+   // R
+  drawChar(22,CHSV(cycleHue, 255, 255),(horiPos+21)%sWidth,vertiPos);
+   // M
+  
+  if (horiPos == 0) {
+    horiPos = sWidth-1;
+  }
+  if (hPos == 0) {
+    hPos = sWidth-1;
+  }
+  
+  drawChar(10,CHSV(cycleHue+80, 255, 255),(hPos)%sWidth,vPos);
+   // A
+  drawChar(23,CHSV(cycleHue+80, 255, 255),(hPos+5)%sWidth,vPos);
+   // N
+  drawChar(16,CHSV(cycleHue+80, 255, 255),(hPos+11)%sWidth,vPos);
+   // G
+  drawChar(14,CHSV(cycleHue+80, 255, 255),(hPos+16)%sWidth,vPos);
+   // E
+  drawChar(21,CHSV(cycleHue+80, 255, 255),(hPos+20)%sWidth,vPos);
+   // L
+  
+  if (vScroll == true) {
+    vPos++;
+    if (++vertiPos == 5) {
+      vScroll = false;
+      hPos = 36;
+      vPos = 5;
+     }
+  }
+  else if (hPos == 57) {
+      vScroll = true;
+      horiPos = 14;
+      vertiPos = 255;
+  }
+  horiPos--;
+  hPos--;
+}
+
+
+// 1337 Scroller
+void eliteScrolls() {
+  if(effectInit == false) {  //startup tasks
+    effectInit = true;
+    scrollEffect = true;
+    effectDelay = 80;
+    horiPos = 6;
+    sWidth = 20;
+  }
+  
+  FastLED.clear();
+  drawChar(1,CHSV(cycleHue+00, 255, 255),(horiPos)%sWidth,5);
+  drawChar(3,CHSV(cycleHue+20, 255, 255),(horiPos+3)%sWidth,5);
+  drawChar(3,CHSV(cycleHue+40, 255, 255),(horiPos+7)%sWidth,5);
+  drawChar(7,CHSV(cycleHue+60, 255, 255),(horiPos+11)%sWidth,5);
+
+  if (scrollDir == 1) {  // Scroll left
+    horiPos--;
+  }
+  else if(scrollDir == 2) {  // Scroll right
+    horiPos++;
+  }  
+  else if (horiPos != 6) {  // Scroll to start position
+    horiPos++;
+  }
+  
+  if(horiPos >= (sWidth+1)) {
+    horiPos = 1;
+  }
+  if (horiPos == 0) {
+    horiPos = sWidth;
+  }
+}
+
+
+
 
