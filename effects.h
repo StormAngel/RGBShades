@@ -401,6 +401,93 @@ void stormScroll() {  // startup tasks
 }
 
 
+//// Molpy Grapevine Scroller ////
+// As seen at the February 2015 "XKCD OTTer Meetup" in Bochum, Germany
+// Inspired by the Owen Evans song "Molpies!"
+// www.youtube.com/watch?v=GU9RL6D23jk
+// For context, read the discussion thread here:
+// http://forums.xkcd.com/viewtopic.php?f=7&t=101043&p=3371229#p3371215
+
+#define Enough_Molpies 12
+#define Extra_Molpies 88  // Redundancy is Molpish!
+
+// Make new wineskins
+uint8_t molpCount, vineCount, molPos, graPos, vWidth;
+
+void molpyVine() {
+  if(effectInit == false) {
+    effectInit = true;
+    scrollEffect = true;
+    effectDelay = 60;
+    scrollDir = 0;
+    molPos = 5;  // Where the molpies are
+    sWidth = 28;  // Where the molpies can be
+    graPos = 27;  // Where the grapevines are
+    vWidth = 67;  // Where the vines can be
+    molpCount = 0;  // How many molpies have gone "bye"
+    vineCount = 0;  // How many vines have passed
+  }
+
+// Molpy Looper
+  if (molPos == 0) {  // Here comes a molpy
+    sWidth = 120;  // Give the molpy space to move
+    molpCount++;  // Count the molpies!
+    if (scrollDir == 1) { // Press button, recieve grapevines
+        scrollDir = 0;
+        molpCount = Enough_Molpies + Extra_Molpies;  // ALL THE MOLPIES!!
+      }
+    if (scrollDir == 2) { // Press button twice to reset molpy counter
+        scrollDir = 0;
+        molpCount = 0;  // Nothing to see here
+      }
+    if (molpCount < Enough_Molpies) {  // Not enough molpies?
+      sWidth = 28;  // Send another molpy immediately
+    }
+    molPos = sWidth;  // Loop the molpies
+  }
+
+//Grapevine Looper
+  if (graPos == 0) {  // A shrubbery!
+    if (vineCount == 0) { // If this is the first vine,
+      vWidth = 46;  // bring another immediately
+    }
+    else {
+      vWidth = 67; // Put that thing back where it came from...
+    }
+    vineCount++;  // Count the vines
+    graPos = vWidth;  // Make a loop of grapes
+  }
+      
+  FastLED.clear();
+// Molpy Molpy...
+  drawChar(22,CHSV(cycleHue+00, 255, 255),(molPos)%sWidth,5);  // M
+  drawChar(24,CHSV(cycleHue+20, 255, 255),(molPos+6)%sWidth,5);  // O
+  drawChar(21,CHSV(cycleHue+40, 255, 255),(molPos+11)%sWidth,5);  // L
+  drawChar(25,CHSV(cycleHue+60, 255, 255),(molPos+15)%sWidth,5);  // P
+  drawChar(34,CHSV(cycleHue+80, 255, 255),(molPos+20)%sWidth,5);  // Y
+  molPos--;  // I like to move it
+  
+// Grapevine Grapevine!
+  if (molpCount >= Enough_Molpies) {  // Send in the vines
+    drawChar(16,CHSV(cycleHue+00, 255, 255),(graPos)%vWidth,5);  // G
+    drawChar(27,CHSV(cycleHue+20, 255, 255),(graPos+5)%vWidth,5);  // R
+    drawChar(10,CHSV(cycleHue+40, 255, 255),(graPos+10)%vWidth,5);  // A
+    drawChar(25,CHSV(cycleHue+60, 255, 255),(graPos+15)%vWidth,5);  // P
+    drawChar(14,CHSV(cycleHue+80, 255, 255),(graPos+20)%vWidth,5);  // E
+    drawChar(31,CHSV(cycleHue+120, 255, 255),(graPos+24)%vWidth,5);  // V
+    drawChar(18,CHSV(cycleHue+140, 255, 255),(graPos+28)%vWidth,5);  // I
+    drawChar(23,CHSV(cycleHue+160, 255, 255),(graPos+32)%vWidth,5);  // N
+    drawChar(14,CHSV(cycleHue+180, 255, 255),(graPos+38)%vWidth,5);  // E
+    graPos--;  // Move it!
+
+    if (vineCount == 2 && graPos == 27) {  // ...or so help me!
+      vineCount = 0;
+      molpCount = 0;  // Bring more molpies
+    }
+  }
+}
+
+
 // 1337 Scroller
 void eliteScrolls() {
   if(effectInit == false) {  //startup tasks
@@ -435,6 +522,73 @@ void eliteScrolls() {
   }
 }
 
+
+//Run Conway's Game of Life on the glasses
+//based on code by kredal
+//github.com/kredal/RGBShades/commit/2cf723b85363d0232035f220d2119ad5847e0e6c
+void gameoflife() {
+  if (effectInit == false) {  // startup tasks
+    effectInit = true;
+    scrollEffect = true;
+    effectDelay = 150;
+    Clear();
+    Glider(0,0);
+    Glider(8,1);
+  }
+  if (scrollDir != 0) {  // Press button to recieve life
+    scrollDir = 0;
+    Randomize(8);  // A higher number means lower chance of cells added
+//  Expand = true;
+  }
+  
+  //draw live cells and count them, determine neighbors and store live cells for next frame.
+  NewCount = 0;
+  for (int x = 0; x < 16; x++) {
+    for (int y = 0; y < 5; y++) {
+      byte Cell = y*16+x;  // This is that Cell
+      if (OldCells[Cell] == 0) {  // Dead cells
+        leds[XY(x,y)] = CRGB::Black;  // Don't draw the cell if its dead
+        if (Neighbors(x,y) == 3) {
+          NewCells[Cell] = 1;  // Its alive!
+          NewCount++;
+        }
+        if (Expand == true) {  // If the pattern is stable, increase cell growth
+          if (Neighbors(x,y) > 1) NewCells[Cell] = 1;
+        }
+      }
+      else {  // Live cells
+        leds[XY(x,y)] = CHSV((CellAge[Cell])*20+28, 255, 255);  // Draw live cells, color dependant on age
+        if (Neighbors(x,y) != 2 && Neighbors(x,y) != 3) {
+          NewCells[Cell] = 0;  // Kill the cell
+          CellAge[Cell] = 0;
+        }
+        else {
+          NewCells[Cell] = 1;  // Stayin' alive
+          if (CellAge[Cell] < 16) CellAge[Cell]++;  // Increment the cell's age until its old
+        }
+      }
+    }
+  }
+  Expand = false;
+  for (byte Cell = 0; Cell < 80; Cell++) {
+    OldCells[Cell] = NewCells[Cell];  // Update the old cells
+    NewCount += OldCells[Cell];  // Count the live cells
+  }
+  if (NewCount == 0) {  // There are no live cells
+    if (++Empty > 7) {  // This number determines the delay before randomizing
+      Empty = 0;
+      Randomize(5);  // 0-9 (A higher value means less cells added)
+    }
+  }
+  else if (NewCount == OldCount) {  // The live cell count hasn't changed
+    if (Stable++ > 42) {  // Delay to confirm stable pattern
+      Stable = 0;
+      Expand = true;
+    }
+  }
+  else Stable = 0;
+  OldCount = NewCount;
+}
 
 
 

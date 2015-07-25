@@ -15,7 +15,7 @@ uint32_t currentMillis; // store current loop's millis value
 uint32_t hueMillis; // store time of last hue change
 
 uint8_t currentEffect = 0; // index to the currently running effect
-uint8_t autoCycle = true; // flag for automatic effect changes
+uint8_t autoCycle = false; // flag for automatic effect changes
 
 CRGBPalette16 currentPalette(RainbowColors_p); // global pallete storage
 

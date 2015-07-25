@@ -37,6 +37,7 @@ byte currentBrightness = STARTBRIGHTNESS; // 0-255 will be scaled to 0-MAXBRIGHT
 #include "utils.h"
 #include "letters.h"
 #include "numbers.h"
+#include "conway.h"
 #include "effects.h"
 #include "effectList.h"
 
@@ -136,8 +137,13 @@ void modeButton_Hold() {
 }
 
 void brightButton_Click() {
-  currentBrightness += 16; // increase the brightness (wraps to lowest)
-  FastLED.setBrightness(scale8(currentBrightness,MAXBRIGHTNESS));
+  if (scrollEffect == true) {
+   if (++scrollDir > 2) scrollDir = 0;  // toggle the text scroll direction
+  }
+  else {
+    currentBrightness += 16; // increase the brightness (wraps to lowest)
+    FastLED.setBrightness(scale8(currentBrightness,MAXBRIGHTNESS));
+  }
 }
 
 void brightButton_DoubleClick() {  // You could replace the Delay values with variables, allowing each effect to set its own speeds.
@@ -156,11 +162,6 @@ void brightButton_DoubleClick() {  // You could replace the Delay values with va
 }
 
 void brightButton_Hold() {
-  if (scrollEffect == true) {
-   if (++scrollDir > 2) scrollDir = 0;  // toggle the text scroll direction
-  }
-  else {
-    currentBrightness = STARTBRIGHTNESS; // reset brightness to startup value
-    FastLED.setBrightness(scale8(currentBrightness,MAXBRIGHTNESS));
-  }
+  currentBrightness = STARTBRIGHTNESS; // reset brightness to startup value
+  FastLED.setBrightness(scale8(currentBrightness,MAXBRIGHTNESS));
 }
